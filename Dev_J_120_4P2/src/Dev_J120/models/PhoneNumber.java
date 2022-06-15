@@ -46,10 +46,10 @@ public class PhoneNumber {
      * @param field specifies value kind, which is used when exception message is generated 
      */
     private void checkArg(String value, String field) {
-        if(value == null || value.isEmpty())
+        if(value == null || value.trim().isEmpty())
             throw new IllegalArgumentException(field + " is null or empty.");
-        for(int i = 0; i < value.length(); i++) {
-            if(!Character.isDigit(value.charAt(i)))
+        for(int i = 0; i < value.trim().length(); i++) {
+            if(!Character.isDigit(value.trim().charAt(i)))
                 throw new IllegalArgumentException(field + " must consist of digits only.");
         }
     }

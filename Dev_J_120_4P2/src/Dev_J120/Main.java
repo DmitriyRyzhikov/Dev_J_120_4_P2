@@ -16,4 +16,3 @@ public class Main {
 	}
 }
 
-//package ru.avalon.javapp.devj120.avalontelecom;
