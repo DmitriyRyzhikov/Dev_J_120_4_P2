@@ -1,14 +1,9 @@
 
 package Dev_J120.ui;
 
-import Dev_J120.Utils;
-import Dev_J120.lists.ClientListOfCompany;
-import Dev_J120.lists.ClientListOfPerson;
-import Dev_J120.lists.FileService;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
-
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -30,6 +25,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import Dev_J120.Utils;
+import Dev_J120.lists.ClientListOfCompany;
+import Dev_J120.lists.ClientListOfPerson;
+import Dev_J120.lists.FileService;
 import Dev_J120.models.PersonInfo;
 import Dev_J120.models.CompanyInfo;
 import Dev_J120.models.PhoneNumber;
@@ -46,13 +45,15 @@ public class MainFrame extends JFrame{
     
     private final FileService fs = new FileService();
     
+    private final Font font1 = new Font("Dialog", Font.BOLD, 13);
+    
     
     public MainFrame() {
         super("Two-type list of clients");        
         initTabbedPanel();
         startApp();
         closeApp();		
-        setBounds(300, 200, 950, 600);	   
+        setBounds(50, 100, 880, 500);	   
 	}
     
     private void tuningTables(){
@@ -72,8 +73,8 @@ public class MainFrame extends JFrame{
         Utils.alignCenter(companyTable, 5);
         Utils.setJTableColumnsWidth(personsTable, 900, 25, 40, 75, 25, 20);
         Utils.setJTableColumnsWidth(companyTable, 900, 19, 25, 30, 30, 30, 21);
-        personsTable.getTableHeader().setFont(new Font("Dialog", Font.BOLD, 14));
-        companyTable.getTableHeader().setFont(new Font("Dialog", Font.BOLD, 14));
+        personsTable.getTableHeader().setFont(font1);
+        companyTable.getTableHeader().setFont(font1);
     }
     private void initTabbedPanel(){
         tuningTables();
@@ -85,7 +86,7 @@ public class MainFrame extends JFrame{
             panels[i].setLayout(new BorderLayout());
             tabbedPane.addTab((i%2!=1)? "Persons": "Сompanies", panels[i]);
             tabbedPane.setMnemonicAt(i, (i%2!=1)? KeyEvent.VK_P : KeyEvent.VK_C);
-            tabbedPane.setFont(new Font("Dialog", Font.BOLD, 17));
+            tabbedPane.setFont(font1);
             add(tabbedPane);
             }
         initPersonMenu(panels[0]);
@@ -95,9 +96,10 @@ public class MainFrame extends JFrame{
     }
 
     private void initPersonMenu(Container container) {
+        
         JMenuBar menuBar = new JMenuBar();
         JMenu operations = new JMenu("Operations for persons");
-        operations.setFont(new Font("Dialog", Font.BOLD, 16));
+        operations.setFont(font1);
         operations.setBorder(BorderFactory.createEtchedBorder());
         operations.setMnemonic('O');
         menuBar.add(operations);
@@ -115,10 +117,12 @@ public class MainFrame extends JFrame{
 
         container.add(menuBar, BorderLayout.NORTH);
 	}
+    
     private void initCompanyMenu(Container container) {
+        
         JMenuBar menuBar = new JMenuBar();
         JMenu operations = new JMenu("Operations for companies");
-        operations.setFont(new Font("Dialog", Font.BOLD, 16));
+        operations.setFont(font1);
         operations.setBorder(BorderFactory.createEtchedBorder());
         operations.setMnemonic('O');
         menuBar.add(operations);
@@ -139,7 +143,8 @@ public class MainFrame extends JFrame{
 	}
     
     private void addMenuItemTo(JMenu parent, String text, char mnemonic,
-        KeyStroke accelerator, ActionListener al) {
+                               KeyStroke accelerator, ActionListener al) {
+        
         JMenuItem mi = new JMenuItem(text, mnemonic);
         mi.setAccelerator(accelerator);
         mi.addActionListener(al);
@@ -147,38 +152,41 @@ public class MainFrame extends JFrame{
     }
     
     private void startApp(){
+        
         addWindowListener(new WindowAdapter() { 
             @Override
         public void windowOpened(WindowEvent e) {
+            
             Map<String, List<String>> sourceMap;
             List<String> sourcePersonList;
             List<String> sourceCompanyList;
-            try {
-                 sourceMap = fs.extractClientsFromFile();
+            try{
+                sourceMap = fs.extractClientsFromFile();
                          
-            sourcePersonList = sourceMap.get(FileService.getURLPerson());
-            sourceCompanyList = sourceMap.get(FileService.getURLCompany());
+                sourcePersonList = sourceMap.get(FileService.getURL_PERSON());
+                sourceCompanyList = sourceMap.get(FileService.getURL_COMPANY());
             
-            sourcePersonList.forEach(x -> {
-            String[] temp = x.split("\u0009");
-            personTableModel.addPersonClient(new PhoneNumber(temp[0], temp[1]), temp[2], temp[3], temp[4], temp[5]);
-            });
-            sourceCompanyList.forEach(x -> {
-            String[] temp = x.split("\u0009");
-            companyTableModel.addCompanyClient(new PhoneNumber(temp[0], temp[1]), temp[2], temp[3], temp[4], temp[5], temp[6]); 
-            }); }
-            
+                sourcePersonList.forEach(x -> {
+                String[] temp = x.split("\u0009");
+                personTableModel.addPersonClient(new PhoneNumber(temp[0], temp[1]), 
+                                                 temp[2], temp[3], temp[4], temp[5]);
+                });
+                sourceCompanyList.forEach(x -> {
+                String[] temp = x.split("\u0009");
+                companyTableModel.addCompanyClient(new PhoneNumber(temp[0], temp[1]), temp[2], 
+                                                   temp[3], temp[4], temp[5], temp[6]); 
+                }); 
+                }            
             catch (IOException ex) {
-                    JOptionPane.showMessageDialog(Utils.findLatestWindow(), 
-                    "The data source file is missing or reading from it is impossible. The data will not be uploaded",
-                    "Error. An error occurred while reading the file.",
-			JOptionPane.ERROR_MESSAGE);
+                   JOptionPane.showMessageDialog(e.getWindow(), 
+                   "The data source file is missing or reading from it is impossible. The data will not be uploaded",
+                   "Error. An error occurred while reading the file.", JOptionPane.ERROR_MESSAGE);
                 }
-            catch(NullPointerException npe){}    
-            
+            catch(NullPointerException npe){}                
         }
-    });
-  }  
+      });
+    }
+    
     private void closeApp(){
         addWindowListener(new WindowAdapter() { 
             @Override
@@ -193,7 +201,7 @@ public class MainFrame extends JFrame{
                     try { 
                         fs.saveClientsToFile(personList, companyList);
                     } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(Utils.findLatestWindow(), 
+                        JOptionPane.showMessageDialog(e.getWindow(), 
                                 "An error occurred while writing the file. Table Data may be lost.", "Error. The application will be stopped.",
 			JOptionPane.ERROR_MESSAGE);
                     }
@@ -205,6 +213,7 @@ public class MainFrame extends JFrame{
             }
         });
     }
+    
     private void addPersonClient() {
 	personDialog.prepareForAdd();
 	while(personDialog.showModal()) {
@@ -246,7 +255,7 @@ public class MainFrame extends JFrame{
 	    ci.setName(personDialog.getPersonClientName());
 	    ci.setAddress(personDialog.getPersonClientAddr());
             ci.setDateOfBirth(personDialog.getPersonClientDateOfBirth()); 
-            ci.setClientAge(ci.ageCalculator(ci.getDateOfBirth()));  
+            ci.setPersonAge(ci.ageCalculator(ci.getDateOfBirth()));  
 	    personTableModel.personClientChanged(seldRow);   
              }      
 	   }
@@ -268,7 +277,7 @@ public class MainFrame extends JFrame{
 	    ci.setCompanyAddress(companyDialog.getCompanyClientAddr());
             ci.setCompanyDirectorName(companyDialog.getCompanyDirectorName()); 
             ci.setContactPersonName(companyDialog.getCompanyContactPersonName()); 
-	    personTableModel.personClientChanged(seldRow);
+	    companyTableModel.companyClientChanged(seldRow); 
 	                               }
            }
         catch (Exception ex) {
@@ -302,7 +311,7 @@ public class MainFrame extends JFrame{
 		+ "with phone number " + ci.getPhoneNumber() + "?", 
 		"Delete confirmation", JOptionPane.YES_NO_OPTION,
 		JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-		personTableModel.dropPersonClient(seldRow);
+                companyTableModel.dropCompanyClient(seldRow); 
 		}
 	}
 }

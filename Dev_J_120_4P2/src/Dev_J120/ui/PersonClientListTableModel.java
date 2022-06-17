@@ -1,6 +1,5 @@
 package Dev_J120.ui;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.event.TableModelEvent;
@@ -11,9 +10,6 @@ import Dev_J120.lists.ClientListOfPerson;
 import Dev_J120.models.PersonInfo;
 import Dev_J120.models.PhoneNumber;
 
-/**
- * Clients list table model for the table of application main window. 
- */
 public class PersonClientListTableModel implements TableModel {
     private static final String[] COLUMN_HEADERS = new String[]{
             "Phone number",
@@ -22,7 +18,6 @@ public class PersonClientListTableModel implements TableModel {
             "Registration date",
             "Person age"
         };
-
     private final Set<TableModelListener> personModelListeners = new HashSet<>();
     
 	@Override
@@ -37,9 +32,8 @@ public class PersonClientListTableModel implements TableModel {
 				return PhoneNumber.class;
 			case 1: 
 			case 2: 
-				return String.class;
 			case 3: 
-				return LocalDate.class;
+				return String.class;
                         case 4:
                                 return Integer.class;
 		}
@@ -64,7 +58,7 @@ public class PersonClientListTableModel implements TableModel {
 			case 1: return ci.getName();
 			case 2: return ci.getAddress();
 			case 3: return ci.getRegDate();
-                        case 4: return ci.getClientAge();
+                        case 4: return ci.getAge();
 		}
 		throw new IllegalArgumentException("unknown columnIndex");
 	}
@@ -95,55 +89,37 @@ public class PersonClientListTableModel implements TableModel {
         personModelListeners.remove(l);
 	}
 	
-	public PersonInfo getPersonClient(int rowNdx) {
-		return ClientListOfPerson.getPersonInstance().getPersonClientInfo(rowNdx);
-	} 
+    public PersonInfo getPersonClient(int rowNdx) {
+        return ClientListOfPerson.getPersonInstance().getPersonClientInfo(rowNdx);
+    } 
 	
-        /*основной метод для добавления списка клиентов в таблицу, данные которых введены через форму. 
-        Дата регистрации - текущая.
-        */
-	public void addPersonClient(PhoneNumber number, String name, String address, String dateOfBirth) {
-	    ClientListOfPerson.getPersonInstance().addPersonClient(number, name, address, dateOfBirth);
-            int rowNdx = ClientListOfPerson.getPersonInstance().getPersonClientsCount() - 1;
-            fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
-	}
-        //перегруженный метод для добавления списка клиентов в таблицу из файла. Дата регистрации не соотвествует текущей.
-        public void addPersonClient(PhoneNumber number, String name, String address, String dateOfBirth, String regDate) {
-	    ClientListOfPerson.getPersonInstance().addPersonClient(number, name, address, dateOfBirth, regDate);
-            int rowNdx = ClientListOfPerson.getPersonInstance().getPersonClientsCount() - 1;
-            fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
-	}
-	
-	/**
-	 * Just notifies model listeners, that data of a person client with specified index has been changed.
-	 * 
-	 * @param index index of a client in the client list, which data has been changed 
-	 */
-	public void personClientChanged(int index) {
+/*Основной метод для добавления списка клиентов в таблицу, данные которых введены через форму. 
+Дата регистрации - текущая.
+*/        
+    public void addPersonClient(PhoneNumber number, String name, String address, String dateOfBirth) {
+	ClientListOfPerson.getPersonInstance().addPersonClient(number, name, address, dateOfBirth);
+        int rowNdx = ClientListOfPerson.getPersonInstance().getPersonClientsCount() - 1;
+        fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
+    }
+//перегруженный метод для добавления списка клиентов в таблицу из файла. Дата регистрации не соотвествует текущей.
+    public void addPersonClient(PhoneNumber number, String name, String address, String dateOfBirth, String regDate) {
+	ClientListOfPerson.getPersonInstance().addPersonClient(number, name, address, dateOfBirth, regDate);
+        int rowNdx = ClientListOfPerson.getPersonInstance().getPersonClientsCount() - 1;
+        fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
+    }
+
+    public void personClientChanged(int index) {
         fireTableModelEvent(index, TableModelEvent.UPDATE);
-	}
+    }
 
-	/**
-	 * Removes person client with the specified index. Notifies model listeners about removal.
-	 *  
-	 * @param index index of a client record to removePerson
-	 */
-	public void dropPersonClient(int index) {
-		ClientListOfPerson.getPersonInstance().removePerson(index);
+    public void dropPersonClient(int index) {
+        ClientListOfPerson.getPersonInstance().removePerson(index);
         fireTableModelEvent(index, TableModelEvent.DELETE);
-	}
+    }
 
-	/**
-	 * Creates {@code TableModelEvent} of specified type (see {@link TableModelEvent} constants),
-	 * and calls listeners to notify them about the change.
-	 * 
-	 * @param rowNdx index of table row, which is the reason of the event
-	 * @param evtType event type; one of {@code TableModelEvent} constants 
-	 * 		({@link TableModelEvent#UPDATE} for example)
-	 */
     private void fireTableModelEvent(int rowNdx, int evtType) {
         TableModelEvent tme = new TableModelEvent(this, rowNdx, rowNdx,
-                TableModelEvent.ALL_COLUMNS, evtType);
+                                                  TableModelEvent.ALL_COLUMNS, evtType);
         for (TableModelListener l : personModelListeners) {
             l.tableChanged(tme);
         }

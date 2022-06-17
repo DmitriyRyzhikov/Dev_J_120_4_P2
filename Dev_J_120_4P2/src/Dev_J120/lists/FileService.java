@@ -17,38 +17,41 @@ import java.util.Map;
 
 public class FileService { 
     
-    private static final String URLPerson = "persons.dat";
-    private static final String URLCompany = "companies.dat";
-    private static final String[] URL = {URLPerson, URLCompany};
-
-    public static String getURLPerson() {
-        return URLPerson;
+    private static final String URL_PERSON = "persons.dat";
+    private static final String URL_COMPANY = "companies.dat";
+    private static final String[] URL = {URL_PERSON, URL_COMPANY};
+//геттеры для URL
+    public static String getURL_PERSON() {
+        return URL_PERSON;
     }
-
-    public static String getURLCompany() {
-        return URLCompany;
+    public static String getURL_COMPANY() {
+        return URL_COMPANY;
     }
-    
+//Метод записывает данные обоих типов клиентов в два файла.    
     public void saveClientsToFile(List<PersonInfo> persons, List<CompanyInfo> companies) throws IOException {
         
-        for(String url : URL) {
-        Path path = Paths.get(url); 
-        if(!path.isAbsolute())
-            path = path.toAbsolutePath();
-        Path dir = path.getParent();
-        if(!Files.isDirectory(dir))
-           Files.createDirectories(dir);
-        if(!Files.exists(path))
-           Files.createFile(path); 
-        List<String> listString = new ArrayList<>();
-        (url.equals(URLPerson)? persons : companies).forEach((s) -> { 
-            listString.add(s.toString());
-        });
-        Files.write(path, listString, StandardCharsets.UTF_8);                
-    }
+        for(String url : URL) 
+        {
+           Path path = Paths.get(url); 
+           if(!path.isAbsolute())
+              path = path.toAbsolutePath();
+           Path dir = path.getParent();
+           if(!Files.isDirectory(dir))
+              Files.createDirectories(dir);
+           if(!Files.exists(path))
+              Files.createFile(path); 
+           List<String> listString = new ArrayList<>();
+           (url.equals(URL_PERSON)? persons : companies).forEach((s) -> { 
+           listString.add(s.toString());
+           });
+           Files.write(path, listString, StandardCharsets.UTF_8);                
+        }
  }
-    
-    public Map<String, List<String>> extractClientsFromFile() throws IOException{
+/*Метод извлекает данные клиентов двух типов из файлов и возвращает Map<>,
+в данном случае используемая как контейнер, в который помещены оба списка.     
+В качестве ключей к спискам используются URL файлов, в которых они хранились.    
+*/  public Map<String, List<String>> extractClientsFromFile() throws IOException{
+        
         Map<String, List<String>> sourceMap = new HashMap<>();
         List<String> sourceList;
         
@@ -60,13 +63,14 @@ public class FileService {
                 throw new IOException
                     ("The source data file was not found. The client database is empty.");
             sourceList = Files.readAllLines(path); 
-            if (url.equals(URLPerson)) {
-                sourceMap.put(URLPerson, sourceList);
+            sourceList = Utils.killerBOM(sourceList);                         
+            if (url.equals(URL_PERSON)) {
+                sourceMap.put(URL_PERSON, sourceList);
             } else {
-                sourceMap.put(URLCompany, sourceList);
-            }
-        }
-    return sourceMap;
+                sourceMap.put(URL_COMPANY, sourceList);
+            }  
+        } 
+        return sourceMap; 
     }
 }
 

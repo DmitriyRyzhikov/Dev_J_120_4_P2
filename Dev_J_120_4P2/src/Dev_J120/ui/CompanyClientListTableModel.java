@@ -1,7 +1,6 @@
 
 package Dev_J120.ui;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,12 +15,12 @@ import Dev_J120.models.PhoneNumber;
 public class CompanyClientListTableModel implements TableModel{
     
     private static final String[] COLUMN_HEADERS = new String[]{
-            "<html><b>Phone number</b></html>",
-            "<html><b>Company name</b></html>",
-            "<html><b>Company address</b></html>",
-            "<html><b>Company director</b></html>",
-            "<html><b>Company contact person</b></html>",
-            "<html><b>Registration date</b></html>"
+            "Phone number",
+            "Company name",
+            "Company address",
+            "Company director",
+            "Company contact person",
+            "Registration date"
         };
 
     private final Set<TableModelListener> companyModelListeners = new HashSet<>();
@@ -39,9 +38,8 @@ public class CompanyClientListTableModel implements TableModel{
 			case 2:
                         case 3:
                         case 4:    
-				return String.class;
                         case 5:
-				return LocalDate.class;
+				return String.class;
 		}
 		throw new IllegalArgumentException("unknown columnIndex");
 	} 
@@ -55,7 +53,7 @@ public class CompanyClientListTableModel implements TableModel{
 	}
     @Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		CompanyInfo comI = ClientListOfCompany.getCompanyInstance().getCompanyClientInfo(rowIndex); 
+	    CompanyInfo comI = ClientListOfCompany.getCompanyInstance().getCompanyClientInfo(rowIndex); 
 		switch(columnIndex) {
 			case 0: return comI.getPhoneNumber(); 
 			case 1: return comI.getCompanyName();
@@ -91,48 +89,33 @@ public class CompanyClientListTableModel implements TableModel{
         public CompanyInfo getCompanyClient(int rowNdx) {
 	    return ClientListOfCompany.getCompanyInstance().getCompanyClientInfo(rowNdx); 
 	}
-    /*Основной метод для добавления списка клиентов в таблицу, данные которых введены через форму. 
-      Дата регистрации - текущая.
-    */
-	public void addCompanyClient(PhoneNumber number, String name, String address, String director, String contactPerson) {
-	    ClientListOfCompany.getCompanyInstance().addCompanyClient(number, name, address, director, contactPerson);
-            int rowNdx = ClientListOfCompany.getCompanyInstance().getCompanyClientsCount() - 1;
-            fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
-	}
-        //перегруженный метод для добавления списка клиентов в таблицу из файла. Дата регистрации не соотвествует текущей.
-        public void addCompanyClient(PhoneNumber number, String name, String address, String director, String contactPerson, String regDate) {
-	    ClientListOfCompany.getCompanyInstance().addCompanyClient(number, name, address, director, contactPerson, regDate);
-            int rowNdx = ClientListOfCompany.getCompanyInstance().getCompanyClientsCount() - 1;
-            fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
-	}
-    /**
-	 * Just notifies model listeners, that data of a company client with specified index has been changed.
-	 * 
-	 * @param index index of a client in the client list, which data has been changed 
-	 */
-	public void companyClientChanged(int index) {
-            fireTableModelEvent(index, TableModelEvent.UPDATE);
-	}
-    /**
-	 * Removes person client with the specified index. Notifies model listeners about removal.
-	 *  
-	 * @param index index of a client record to removePerson
-	 */
-	public void dropCompanyClient(int index) {
-            ClientListOfCompany.getCompanyInstance().removeCompany(index); 
-            fireTableModelEvent(index, TableModelEvent.DELETE);
-	}
-    /**
-	 * Creates {@code TableModelEvent} of specified type (see {@link TableModelEvent} constants),
-	 * and calls listeners to notify them about the change.
-	 * 
-	 * @param rowNdx index of table row, which is the reason of the event
-	 * @param evtType event type; one of {@code TableModelEvent} constants 
-	 * 		({@link TableModelEvent#UPDATE} for example)
-	 */
+/*Основной метод для добавления списка клиентов в таблицу, данные которых введены через форму. 
+Дата регистрации - текущая.
+*/    
+    public void addCompanyClient(PhoneNumber number, String name, String address, String director, String contactPerson) {
+	ClientListOfCompany.getCompanyInstance().addCompanyClient(number, name, address, director, contactPerson);
+        int rowNdx = ClientListOfCompany.getCompanyInstance().getCompanyClientsCount() - 1;
+        fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
+    }
+//перегруженный метод для добавления списка клиентов в таблицу из файла. Дата регистрации не соотвествует текущей.
+    public void addCompanyClient(PhoneNumber number, String name, String address, String director, String contactPerson, String regDate) {
+	ClientListOfCompany.getCompanyInstance().addCompanyClient(number, name, address, director, contactPerson, regDate);
+        int rowNdx = ClientListOfCompany.getCompanyInstance().getCompanyClientsCount() - 1;
+        fireTableModelEvent(rowNdx, TableModelEvent.INSERT);
+    }
+
+    public void companyClientChanged(int index) {
+        fireTableModelEvent(index, TableModelEvent.UPDATE);
+    }
+
+    public void dropCompanyClient(int index) {
+        ClientListOfCompany.getCompanyInstance().removeCompany(index); 
+        fireTableModelEvent(index, TableModelEvent.DELETE);
+    }
+
     private void fireTableModelEvent(int rowNdx, int evtType) {
         TableModelEvent tme = new TableModelEvent(this, rowNdx, rowNdx,
-                TableModelEvent.ALL_COLUMNS, evtType);
+                                                  TableModelEvent.ALL_COLUMNS, evtType);
         for (TableModelListener l : companyModelListeners) {
             l.tableChanged(tme);
         }
